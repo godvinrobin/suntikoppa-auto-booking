@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Suntikoppa Auto Booking</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--accent:#ffb400;--muted:#6b7280;--text:#0f172a}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .container{max-width:920px;margin:0 auto;padding:20px}
+    header{display:flex;align-items:center;gap:14px}
+    .logo-wrap{width:64px;height:64px;border-radius:12px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    label{display:block;font-size:13px;margin-bottom:6px;color:var(--text)}
+    select,input,textarea,button{font-size:14px}
+    select,input[type=text],input[type=tel],input[type=datetime-local],textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;box-sizing:border-box}
+    textarea{min-height:80px;resize:vertical}
+    .full{grid-column:1 / -1}
+    .row{display:flex;gap:8px;align-items:center}
+    button{background:var(--accent);border:none;color:#111;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    .btn-ghost{background:transparent;border:1px solid #e6e9ef;padding:9px 12px;border-radius:10px;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .success{background:#ecfdf5;color:#064e3b;padding:10px;border-radius:8px;margin-top:12px}
+    @media (max-width:720px){.grid{grid-template-columns:1fr}.logo-wrap{width:48px;height:48px}}
+    /* Splash screen */
+    .splash{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.6s ease, visibility 0.6s}
+    .splash.hidden{opacity:0;visibility:hidden}
+    .splash .svg-wrap{width:140px;height:140px;display:flex;align-items:center;justify-content:center}
+    .sketch{width:100%;height:100%}
+    /* simple running effect */
+    .wheel{animation:spin 1s linear infinite;transform-origin:center}
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    /* fade-out delay */
+  </style>
+</head>
+<body>
+  <!-- Splash screen with inline SVG autorickshaw sketch -->
+  <div id="splash" class="splash" aria-hidden="false">
+    <div style="text-align:center">
+      <div class="svg-wrap" role="img" aria-label="Autorickshaw logo">
+        <!-- Simple 2D black sketch autorickshaw SVG -->
+        <svg class="sketch" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <!-- body -->
+            <path d="M10 70 L30 45 L110 45 L150 70 L160 85 L20 85 Z" />
+            <!-- roof -->
+            <path d="M30 45 L60 30 L120 30 L140 45" />
+            <!-- front vertical -->
+            <path d="M150 70 L170 70" />
+            <!-- windshield -->
+            <path d="M110 45 L110 60" />
+            <!-- wheels -->
+            <circle class="wheel" cx="45" cy="85" r="12" stroke-width="4" fill="none" />
+            <circle class="wheel" cx="135" cy="85" r="12" stroke-width="4" fill="none" />
+            <!-- details: headlight -->
+            <circle cx="170" cy="76" r="3" fill="#000" stroke="none" />
+            <!-- door line -->
+            <path d="M70 45 L70 70" />
+          </g>
+        </svg>
+      </div>
+      <div style="margin-top:12px;font-weight:700">Suntikoppa Auto Booking</div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContent" style="opacity:0">
+    <header>
+      <div class="logo-wrap">A</div>
+      <div>
+        <h1>AutoBooking — Quick Book</h1>
+        <p class="lead">Tap the button to send booking details straight to WhatsApp.</p>
+      </div>
+    </header>
+
+    <section class="card" style="margin-top:16px">
+      <form id="bookingForm" class="grid" onsubmit="return false;">
+        <div>
+          <label for="name">Your name</label>
+          <input id="name" name="name" type="text" required placeholder="John Doe">
+        </div>
+
+        <div>
+          <label for="phone">Phone (WhatsApp)</label>
+          <input id="phone" name="phone" type="tel" required placeholder="eg: 9198xxxxxxxx">
+        </div>
+
+        <div class="full" style="display:flex;gap:12px;align-items:center">
+          <div style="flex:1">
+            <label>Pickup (fixed)</label>
+            <!-- visible locked pickup field -->
+            <input type="text" value="Suntikoppa" disabled style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6e9ef;background:#f3f4f6" />
+            <!-- hidden input actually sent in message -->
+            <input type="hidden" id="pickup" name="pickup" value="Suntikoppa" />
+          </div>
+
+          <div style="flex:1">
+            <label for="drop">Drop location</label>
+            <select id="drop" name="drop" required>
+              <option value="" disabled selected>Select location</option>
+              <option>Madikeri</option>
+              <option>Kushalnagar</option>
+              <option>Chettalli</option>
+              <option>Boikeri</option>
+              <option>7th Hoskote</option>
+              <option>Ponnathmotte</option>
+              <option>Gaddehalla</option>
+              <option>Madapura</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="rideType">Ride type</label>
+          <select id="rideType" name="rideType">
+            <option>Private</option>
+            <option>Shared</option>
+            <option>Meter</option>
+            <option>Outstation</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="datetime">Pickup time</label>
+          <input id="datetime" name="datetime" type="datetime-local">
+        </div>
+
+        <div class="full">
+          <label for="notes">Notes (optional)</label>
+          <textarea id="notes" name="notes" placeholder="Any instructions for the driver..."></textarea>
+        </div>
+
+        <div class="row full" style="justify-content:flex-start;align-items:center">
+          <button type="button" id="waBtn">Send Booking via WhatsApp</button>
+          <button type="button" id="clearBtn" class="btn-ghost" style="margin-left:8px">Clear</button>
+        </div>
+
+        <div id="msg" class="full" style="display:none"></div>
+      </form>
+    </section>
+
+    <section style="margin-top:14px;text-align:center;color:var(--muted);font-size:13px">
+      <div>Hosted as a single HTML file. Works on mobile browsers (opens WhatsApp app if available).</div>
+    </section>
+  </div>
+
+  <script>
+    // Config: your WhatsApp number (international, no +)
+    const ADMIN_WA_NUMBER = '917795886619';
+
+    // Splash logic: show splash, then fade out after 1.6s, then reveal page
+    (function(){
+      const splash = document.getElementById('splash');
+      const main = document.getElementById('mainContent');
+      // Keep splash for 1400ms then fade
+      setTimeout(()=>{
+        splash.classList.add('hidden');
+        // reveal main after fade
+        setTimeout(()=>{ main.style.opacity = 1; }, 700);
+      }, 1400);
+    })();
+
+    // Build message and open WhatsApp
+    function getFormData(){
+      return {
+        name: document.getElementById('name').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        pickup: document.getElementById('pickup').value.trim() || 'Suntikoppa',
+        drop: document.getElementById('drop').value,
+        rideType: document.getElementById('rideType').value,
+        datetime: document.getElementById('datetime').value,
+        notes: document.getElementById('notes').value.trim()
+      };
+    }
+
+    function buildWhatsAppMessage(data){
+      const lines = [];
+      lines.push('New Auto Booking — Suntikoppa');
+      lines.push('Name: ' + (data.name || '—'));
+      lines.push('Phone: ' + (data.phone || '—'));
+      lines.push('Pickup: ' + (data.pickup || 'Suntikoppa'));
+      lines.push('Drop: ' + (data.drop || '—'));
+      lines.push('Ride: ' + (data.rideType || '—'));
+      if (data.datetime) lines.push('Pickup time: ' + data.datetime);
+      if (data.notes) lines.push('Notes: ' + data.notes);
+      return encodeURIComponent(lines.join('\\n'));
+    }
+
+    document.getElementById('waBtn').addEventListener('click', ()=>{
+      const data = getFormData();
+      // basic validation
+      if(!data.name){ return showMessage('Please enter your name', true); }
+      if(!data.phone){ return showMessage('Please enter your phone number', true); }
+      if(!data.drop){ return showMessage('Please select drop location', true); }
+      const message = buildWhatsAppMessage(data);
+      const url = 'https://wa.me/' + ADMIN_WA_NUMBER + '?text=' + message;
+      // open whatsapp in new tab (mobile opens the app)
+      window.open(url, '_blank');
+      showMessage('Opening WhatsApp...', false);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      document.getElementById('bookingForm').reset();
+      showMessage('Form cleared.', false);
+    });
+
+    function showMessage(text, isError=false){
+      const el = document.getElementById('msg');
+      el.style.display = 'block';
+      el.className = 'full ' + (isError ? 'success' : 'success');
+      el.textContent = text;
+      setTimeout(()=>{ el.style.display='none'; }, 3000);
+    }
+  </script>
+</body>
+</html>
