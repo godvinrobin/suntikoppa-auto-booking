@@ -30,10 +30,8 @@
     .splash.hidden{opacity:0;visibility:hidden}
     .splash .svg-wrap{width:140px;height:140px;display:flex;align-items:center;justify-content:center}
     .sketch{width:100%;height:100%}
-    /* simple running effect */
     .wheel{animation:spin 1s linear infinite;transform-origin:center}
     @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    /* fade-out delay */
   </style>
 </head>
 <body>
@@ -44,20 +42,13 @@
         <!-- Simple 2D black sketch autorickshaw SVG -->
         <svg class="sketch" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <!-- body -->
             <path d="M10 70 L30 45 L110 45 L150 70 L160 85 L20 85 Z" />
-            <!-- roof -->
             <path d="M30 45 L60 30 L120 30 L140 45" />
-            <!-- front vertical -->
             <path d="M150 70 L170 70" />
-            <!-- windshield -->
             <path d="M110 45 L110 60" />
-            <!-- wheels -->
             <circle class="wheel" cx="45" cy="85" r="12" stroke-width="4" fill="none" />
             <circle class="wheel" cx="135" cy="85" r="12" stroke-width="4" fill="none" />
-            <!-- details: headlight -->
             <circle cx="170" cy="76" r="3" fill="#000" stroke="none" />
-            <!-- door line -->
             <path d="M70 45 L70 70" />
           </g>
         </svg>
@@ -90,9 +81,7 @@
         <div class="full" style="display:flex;gap:12px;align-items:center">
           <div style="flex:1">
             <label>Pickup (fixed)</label>
-            <!-- visible locked pickup field -->
             <input type="text" value="Suntikoppa" disabled style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6e9ef;background:#f3f4f6" />
-            <!-- hidden input actually sent in message -->
             <input type="hidden" id="pickup" name="pickup" value="Suntikoppa" />
           </div>
 
@@ -124,7 +113,7 @@
 
         <div>
           <label for="datetime">Pickup time</label>
-          <input id="datetime" name="datetime" type="datetime-local">
+          <input id="datetime" name="datetime" type="datetime-local" />
         </div>
 
         <div class="full">
@@ -147,37 +136,76 @@
   </div>
 
   <script>
-function sendWhatsApp() {
-  var name = document.getElementById("name").value;
-  var phone = document.getElementById("phone").value;
-  var pickup = document.getElementById("pickup").value;
-  var drop = document.getElementById("drop").value;
-  var ride = document.getElementById("ride").value;
-  var time = document.getElementById("time").value;
-  var notes = document.getElementById("notes").value;
+    // Config: your WhatsApp number (international, no +)
+    const ADMIN_WA_NUMBER = '917795886619';
 
-  // Convert datetime to readable format
-  var dateObj = new Date(time);
-  var options = { 
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', hour12: true 
-  };
-  var formattedTime = dateObj.toLocaleString('en-IN', options);
+    // Splash logic: show splash, then fade out after 1.4s, then reveal page
+    (function(){
+      const splash = document.getElementById('splash');
+      const main = document.getElementById('mainContent');
+      setTimeout(()=>{
+        splash.classList.add('hidden');
+        setTimeout(()=>{ main.style.opacity = 1; }, 600);
+      }, 1400);
+    })();
 
-  var message =
-`🛺 *New Auto Booking — Suntikoppa*
+    // Utility: format datetime-local value to "05 Dec 2025, 09:36 AM"
+    function formatDateTimeLocal(value) {
+      if (!value) return 'ASAP';
+      // value example: "2025-12-05T09:36"
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return 'ASAP';
+      const opts = { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12: true };
+      return d.toLocaleString('en-IN', opts);
+    }
 
-👤 Name: ${name}
-📞 Phone: ${phone}
-📍 Pickup: ${pickup}
-📌 Drop: ${drop}
-🚖 Ride Type: ${ride}
-⏰ Pickup Time: ${formattedTime}
-📝 Notes: ${notes}`;
+    function showMessage(text, isError=false){
+      const el = document.getElementById('msg');
+      el.style.display = 'block';
+      el.className = 'full success';
+      el.textContent = text;
+      setTimeout(()=>{ el.style.display='none'; }, 3000);
+    }
 
-  var url = "https://wa.me/917795886619?text=" + encodeURIComponent(message);
-  window.open(url, "_blank");
-}
+    document.getElementById('waBtn').addEventListener('click', ()=> {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const pickup = document.getElementById('pickup').value || 'Suntikoppa';
+      const drop = document.getElementById('drop').value;
+      const rideType = document.getElementById('rideType').value;
+      const datetimeVal = document.getElementById('datetime').value;
+      const notes = document.getElementById('notes').value.trim();
+
+      // Basic validation
+      if (!name) return showMessage('Please enter your name', true);
+      if (!phone) return showMessage('Please enter your phone number', true);
+      if (!drop) return showMessage('Please select a drop location', true);
+
+      const formattedTime = formatDateTimeLocal(datetimeVal);
+
+      const messageLines = [
+        '🛺 *New Auto Booking — Suntikoppa*',
+        '',
+        `👤 Name: ${name}`,
+        `📞 Phone: ${phone}`,
+        `📍 Pickup: ${pickup}`,
+        `📌 Drop: ${drop}`,
+        `🚖 Ride Type: ${rideType}`,
+        `⏰ Pickup Time: ${formattedTime}`,
+      ];
+      if (notes) messageLines.push(`📝 Notes: ${notes}`);
+
+      const message = messageLines.join('\n');
+      const url = 'https://wa.me/' + ADMIN_WA_NUMBER + '?text=' + encodeURIComponent(message);
+      // open whatsapp (mobile will open app, desktop opens web.whatsapp)
+      window.open(url, '_blank');
+      showMessage('Opening WhatsApp…');
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      document.getElementById('bookingForm').reset();
+      showMessage('Form cleared.');
+    });
   </script>
 </body>
 </html>
