@@ -147,72 +147,37 @@
   </div>
 
   <script>
-    // Config: your WhatsApp number (international, no +)
-    const ADMIN_WA_NUMBER = '917795886619';
+function sendWhatsApp() {
+  var name = document.getElementById("name").value;
+  var phone = document.getElementById("phone").value;
+  var pickup = document.getElementById("pickup").value;
+  var drop = document.getElementById("drop").value;
+  var ride = document.getElementById("ride").value;
+  var time = document.getElementById("time").value;
+  var notes = document.getElementById("notes").value;
 
-    // Splash logic: show splash, then fade out after 1.6s, then reveal page
-    (function(){
-      const splash = document.getElementById('splash');
-      const main = document.getElementById('mainContent');
-      // Keep splash for 1400ms then fade
-      setTimeout(()=>{
-        splash.classList.add('hidden');
-        // reveal main after fade
-        setTimeout(()=>{ main.style.opacity = 1; }, 700);
-      }, 1400);
-    })();
+  // Convert datetime to readable format
+  var dateObj = new Date(time);
+  var options = { 
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true 
+  };
+  var formattedTime = dateObj.toLocaleString('en-IN', options);
 
-    // Build message and open WhatsApp
-    function getFormData(){
-      return {
-        name: document.getElementById('name').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
-        pickup: document.getElementById('pickup').value.trim() || 'Suntikoppa',
-        drop: document.getElementById('drop').value,
-        rideType: document.getElementById('rideType').value,
-        datetime: document.getElementById('datetime').value,
-        notes: document.getElementById('notes').value.trim()
-      };
-    }
+  var message =
+`🛺 *New Auto Booking — Suntikoppa*
 
-    function buildWhatsAppMessage(data){
-      const lines = [];
-      lines.push('New Auto Booking — Suntikoppa');
-      lines.push('Name: ' + (data.name || '—'));
-      lines.push('Phone: ' + (data.phone || '—'));
-      lines.push('Pickup: ' + (data.pickup || 'Suntikoppa'));
-      lines.push('Drop: ' + (data.drop || '—'));
-      lines.push('Ride: ' + (data.rideType || '—'));
-      if (data.datetime) lines.push('Pickup time: ' + data.datetime);
-      if (data.notes) lines.push('Notes: ' + data.notes);
-      return encodeURIComponent(lines.join('\\n'));
-    }
+👤 Name: ${name}
+📞 Phone: ${phone}
+📍 Pickup: ${pickup}
+📌 Drop: ${drop}
+🚖 Ride Type: ${ride}
+⏰ Pickup Time: ${formattedTime}
+📝 Notes: ${notes}`;
 
-    document.getElementById('waBtn').addEventListener('click', ()=>{
-      const data = getFormData();
-      // basic validation
-      if(!data.name){ return showMessage('Please enter your name', true); }
-      if(!data.phone){ return showMessage('Please enter your phone number', true); }
-      if(!data.drop){ return showMessage('Please select drop location', true); }
-      const message = buildWhatsAppMessage(data);
-      const url = 'https://wa.me/' + ADMIN_WA_NUMBER + '?text=' + message;
-      // open whatsapp in new tab (mobile opens the app)
-      window.open(url, '_blank');
-      showMessage('Opening WhatsApp...', false);
-    });
-
-    document.getElementById('clearBtn').addEventListener('click', ()=>{
-      document.getElementById('bookingForm').reset();
-      showMessage('Form cleared.', false);
-    });
-
-    function showMessage(text, isError=false){
-      const el = document.getElementById('msg');
-      el.style.display = 'block';
-      el.className = 'full ' + (isError ? 'success' : 'success');
-      el.textContent = text;
-      setTimeout(()=>{ el.style.display='none'; }, 3000);
-    }
+  var url = "https://wa.me/917795886619?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
+}
   </script>
 </body>
 </html>
