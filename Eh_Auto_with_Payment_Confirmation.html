@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Eh Auto - Suntikoppa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 420px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    }
+    h2 { text-align: center; }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background: green;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover { background: darkgreen; }
+    .logo { text-align: center; margin-bottom: 10px; }
+    .logo-box {
+      width: 120px;
+      height: 70px;
+      background: black;
+      color: white;
+      line-height: 70px;
+      border-radius: 10px;
+      display: inline-block;
+      font-weight: bold;
+      animation: move 1s infinite alternate;
+    }
+    @keyframes move {
+      from { transform: translateX(-10px); }
+      to { transform: translateX(10px); }
+    }
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: gray;
+    }
+    .pay-box {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      border: 2px dashed green;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    <div class="logo-box">AUTO</div>
+    <div><b>Suntikoppa</b></div>
+  </div>
+
+  <h2>Autorickshaw Booking</h2>
+
+  <label>Pickup Location</label>
+  <input type="text" id="pickup" value="Suntikoppa" readonly>
+
+  <label>Select Destination</label>
+  <select id="destination" onchange="checkOther()">
+    <option value="">-- Select Destination --</option>
+    <option value="Suntikoppa">Suntikoppa</option>
+    <option value="Madikeri">Madikeri</option>
+    <option value="Kushalnagar">Kushalnagar</option>
+    <option value="Chettalli">Chettalli</option>
+    <option value="Boikeri">Boikeri</option>
+    <option value="7th Hoskote">7th Hoskote</option>
+    <option value="Ponnathmotte">Ponnathmotte</option>
+    <option value="Gaddehalla">Gaddehalla</option>
+    <option value="Madapura">Madapura</option>
+    <option value="Other">Other (Enter Manually)</option>
+  </select>
+
+  <input type="text" id="otherDestination" placeholder="Enter your destination" style="display:none;">
+
+  <label>Booking Date & Time</label>
+  <input type="datetime-local" id="bookingTime">
+
+  <label>Your Name</label>
+  <input type="text" id="customerName" placeholder="Enter your name">
+
+  <label>Phone Number</label>
+  <input type="tel" id="phone" placeholder="Enter your phone number">
+
+  <div class="pay-box">
+    <h3>Pay Now via UPI</h3>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A//pay%3Fpa%3D7795886619%40ptyes%26pn%3DGodvin%26cu%3DINR" alt="Payment QR">
+    <p><b>UPI ID:</b> 7795886619@ptyes</p>
+    <label>Payment Status</label>
+    <select id="paymentStatus">
+      <option value="Not Paid">❌ Not Paid</option>
+      <option value="Paid">✅ Paid</option>
+    </select>
+  </div>
+
+  <button onclick="bookNow()">📲 Book Now via WhatsApp</button>
+
+  <div class="footer">
+    Powered by Godvin Robin 🚕
+  </div>
+</div>
+
+<script>
+  function checkOther() {
+    var destination = document.getElementById("destination").value;
+    var otherBox = document.getElementById("otherDestination");
+    if (destination === "Other") otherBox.style.display = "block";
+    else otherBox.style.display = "none";
+  }
+
+  function bookNow() {
+    var pickup = document.getElementById("pickup").value;
+    var destination = document.getElementById("destination").value;
+    var otherDestination = document.getElementById("otherDestination").value;
+    var name = document.getElementById("customerName").value;
+    var phone = document.getElementById("phone").value;
+    var time = document.getElementById("bookingTime").value;
+    var payment = document.getElementById("paymentStatus").value;
+
+    if (destination === "") { alert("Please select destination"); return; }
+    if (destination === "Other" && otherDestination === "") { alert("Please enter destination"); return; }
+    if (destination === "Other") destination = otherDestination;
+
+    var whatsappMessage =
+      "🚖 *AUTO BOOKING REQUEST*\n\n" +
+      "👤 *Name:* " + name + "\n" +
+      "📞 *Phone:* " + phone + "\n" +
+      "📍 *Pickup:* " + pickup + "\n" +
+      "🏁 *Destination:* " + destination + "\n" +
+      "⏰ *Date & Time:* " + time + "\n" +
+      "💰 *Payment:* " + payment + "\n\n" +
+      "✅ Please confirm ride.";
+
+    var whatsappNumber = "917795886619";
+    var url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(whatsappMessage);
+    window.open(url, "_blank");
+  }
+</script>
+
+</body>
+</html>
