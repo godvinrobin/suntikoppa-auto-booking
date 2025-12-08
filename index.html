@@ -1,211 +1,177 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Suntikoppa Auto Booking</title>
+  <meta charset="UTF-8">
+  <title>Eh Auto - Suntikoppa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    :root{--bg:#f6f7fb;--card:#fff;--accent:#ffb400;--muted:#6b7280;--text:#0f172a}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    .container{max-width:920px;margin:0 auto;padding:20px}
-    header{display:flex;align-items:center;gap:14px}
-    .logo-wrap{width:64px;height:64px;border-radius:12px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
-    h1{margin:0;font-size:20px}
-    p.lead{margin:6px 0 18px;color:var(--muted)}
-    .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    label{display:block;font-size:13px;margin-bottom:6px;color:var(--text)}
-    select,input,textarea,button{font-size:14px}
-    select,input[type=text],input[type=tel],input[type=datetime-local],textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;box-sizing:border-box}
-    textarea{min-height:80px;resize:vertical}
-    .full{grid-column:1 / -1}
-    .row{display:flex;gap:8px;align-items:center}
-    button{background:var(--accent);border:none;color:#111;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
-    .btn-ghost{background:transparent;border:1px solid #e6e9ef;padding:9px 12px;border-radius:10px;cursor:pointer}
-    .muted{color:var(--muted);font-size:13px}
-    .success{background:#ecfdf5;color:#064e3b;padding:10px;border-radius:8px;margin-top:12px}
-    @media (max-width:720px){.grid{grid-template-columns:1fr}.logo-wrap{width:48px;height:48px}}
-    /* Splash screen */
-    .splash{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity 0.6s ease, visibility 0.6s}
-    .splash.hidden{opacity:0;visibility:hidden}
-    .splash .svg-wrap{width:140px;height:140px;display:flex;align-items:center;justify-content:center}
-    .sketch{width:100%;height:100%}
-    .wheel{animation:spin 1s linear infinite;transform-origin:center}
-    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 420px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    }
+    h2 { text-align: center; }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background: green;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover { background: darkgreen; }
+    .logo { text-align: center; margin-bottom: 10px; }
+    .logo-box {
+      width: 120px;
+      height: 70px;
+      background: black;
+      color: white;
+      line-height: 70px;
+      border-radius: 10px;
+      display: inline-block;
+      font-weight: bold;
+      animation: move 1s infinite alternate;
+    }
+    @keyframes move {
+      from { transform: translateX(-10px); }
+      to { transform: translateX(10px); }
+    }
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: gray;
+    }
+    .pay-box {
+      text-align: center;
+      margin-top: 20px;
+      padding: 15px;
+      border: 2px dashed green;
+      border-radius: 10px;
+    }
   </style>
 </head>
+
 <body>
-  <!-- Splash screen with inline SVG autorickshaw sketch -->
-  <div id="splash" class="splash" aria-hidden="false">
-    <div style="text-align:center">
-      <div class="svg-wrap" role="img" aria-label="Autorickshaw logo">
-        <!-- Simple 2D black sketch autorickshaw SVG -->
-        <svg class="sketch" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 70 L30 45 L110 45 L150 70 L160 85 L20 85 Z" />
-            <path d="M30 45 L60 30 L120 30 L140 45" />
-            <path d="M150 70 L170 70" />
-            <path d="M110 45 L110 60" />
-            <circle class="wheel" cx="45" cy="85" r="12" stroke-width="4" fill="none" />
-            <circle class="wheel" cx="135" cy="85" r="12" stroke-width="4" fill="none" />
-            <circle cx="170" cy="76" r="3" fill="#000" stroke="none" />
-            <path d="M70 45 L70 70" />
-          </g>
-        </svg>
-      </div>
-      <div style="margin-top:12px;font-weight:700">Suntikoppa Auto Booking</div>
-    </div>
+
+<div class="container">
+
+  <div class="logo">
+    <div class="logo-box">AUTO</div>
+    <div><b>Suntikoppa</b></div>
   </div>
 
-  <div class="container" id="mainContent" style="opacity:0">
-    <header>
-      <div class="logo-wrap">A</div>
-      <div>
-        <h1>AutoBooking — Quick Book</h1>
-        <p class="lead">Tap the button to send booking details straight to WhatsApp.</p>
-      </div>
-    </header>
+  <h2>Autorickshaw Booking</h2>
 
-    <section class="card" style="margin-top:16px">
-      <form id="bookingForm" class="grid" onsubmit="return false;">
-        <div>
-          <label for="name">Your name</label>
-          <input id="name" name="name" type="text" required placeholder="John Doe">
-        </div>
+  <label>Pickup Location</label>
+  <input type="text" id="pickup" value="Suntikoppa" readonly>
 
-        <div>
-          <label for="phone">Phone (WhatsApp)</label>
-          <input id="phone" name="phone" type="tel" required placeholder="eg: 9198xxxxxxxx">
-        </div>
+  <label>Select Destination</label>
+  <select id="destination" onchange="checkOther()">
+    <option value="">-- Select Destination --</option>
+    <option value="Suntikoppa">Suntikoppa</option>
+    <option value="Madikeri">Madikeri</option>
+    <option value="Kushalnagar">Kushalnagar</option>
+    <option value="Chettalli">Chettalli</option>
+    <option value="Boikeri">Boikeri</option>
+    <option value="7th Hoskote">7th Hoskote</option>
+    <option value="Ponnathmotte">Ponnathmotte</option>
+    <option value="Gaddehalla">Gaddehalla</option>
+    <option value="Madapura">Madapura</option>
+    <option value="Other">Other (Enter Manually)</option>
+  </select>
 
-        <div class="full" style="display:flex;gap:12px;align-items:center">
-          <div style="flex:1">
-            <label>Pickup (fixed)</label>
-            <input type="text" value="Suntikoppa" disabled style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6e9ef;background:#f3f4f6" />
-            <input type="hidden" id="pickup" name="pickup" value="Suntikoppa" />
-          </div>
+  <input type="text" id="otherDestination" placeholder="Enter your destination" style="display:none;">
 
-          <div style="flex:1">
-            <label for="drop">Drop location</label>
-            <select id="drop" name="drop" required>
-              <option value="" disabled selected>Select location</option>
-              <option>Madikeri</option>
-              <option>Kushalnagar</option>
-              <option>Chettalli</option>
-              <option>Boikeri</option>
-              <option>7th Hoskote</option>
-              <option>Ponnathmotte</option>
-              <option>Gaddehalla</option>
-              <option>Madapura</option>
-            </select>
-          </div>
-        </div>
+  <label>Booking Date & Time</label>
+  <input type="datetime-local" id="bookingTime">
 
-        <div>
-          <label for="rideType">Ride type</label>
-          <select id="rideType" name="rideType">
-            <option>Private</option>
-            <option>Shared</option>
-            <option>Meter</option>
-            <option>Outstation</option>
-          </select>
-        </div>
+  <label>Your Name</label>
+  <input type="text" id="customerName" placeholder="Enter your name">
 
-        <div>
-          <label for="datetime">Pickup time</label>
-          <input id="datetime" name="datetime" type="datetime-local" />
-        </div>
+  <label>Phone Number</label>
+  <input type="tel" id="phone" placeholder="Enter your phone number">
 
-        <div class="full">
-          <label for="notes">Notes (optional)</label>
-          <textarea id="notes" name="notes" placeholder="Any instructions for the driver..."></textarea>
-        </div>
-
-        <div class="row full" style="justify-content:flex-start;align-items:center">
-          <button type="button" id="waBtn">Send Booking via WhatsApp</button>
-          <button type="button" id="clearBtn" class="btn-ghost" style="margin-left:8px">Clear</button>
-        </div>
-
-        <div id="msg" class="full" style="display:none"></div>
-      </form>
-    </section>
-
-    <section style="margin-top:14px;text-align:center;color:var(--muted);font-size:13px">
-      <div>Hosted as a single HTML file. Works on mobile browsers (opens WhatsApp app if available).</div>
-    </section>
+  <div class="pay-box">
+    <h3>Pay Now via UPI</h3>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A//pay%3Fpa%3D7795886619%40ptyes%26pn%3DGodvin%26cu%3DINR" alt="Payment QR">
+    <p><b>UPI ID:</b> 7795886619@ptyes</p>
+    <label>Payment Status</label>
+    <select id="paymentStatus">
+      <option value="Not Paid">❌ Not Paid</option>
+      <option value="Paid">✅ Paid</option>
+    </select>
   </div>
 
-  <script>
-    // Config: your WhatsApp number (international, no +)
-    const ADMIN_WA_NUMBER = '917795886619';
+  <button onclick="bookNow()">📲 Book Now via WhatsApp</button>
 
-    // Splash logic: show splash, then fade out after 1.4s, then reveal page
-    (function(){
-      const splash = document.getElementById('splash');
-      const main = document.getElementById('mainContent');
-      setTimeout(()=>{
-        splash.classList.add('hidden');
-        setTimeout(()=>{ main.style.opacity = 1; }, 600);
-      }, 1400);
-    })();
+  <div class="footer">
+    Powered by Godvin Robin 🚕
+  </div>
+</div>
 
-    // Utility: format datetime-local value to "05 Dec 2025, 09:36 AM"
-    function formatDateTimeLocal(value) {
-      if (!value) return 'ASAP';
-      // value example: "2025-12-05T09:36"
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return 'ASAP';
-      const opts = { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12: true };
-      return d.toLocaleString('en-IN', opts);
-    }
+<script>
+  function checkOther() {
+    var destination = document.getElementById("destination").value;
+    var otherBox = document.getElementById("otherDestination");
+    if (destination === "Other") otherBox.style.display = "block";
+    else otherBox.style.display = "none";
+  }
 
-    function showMessage(text, isError=false){
-      const el = document.getElementById('msg');
-      el.style.display = 'block';
-      el.className = 'full success';
-      el.textContent = text;
-      setTimeout(()=>{ el.style.display='none'; }, 3000);
-    }
+  function bookNow() {
+    var pickup = document.getElementById("pickup").value;
+    var destination = document.getElementById("destination").value;
+    var otherDestination = document.getElementById("otherDestination").value;
+    var name = document.getElementById("customerName").value;
+    var phone = document.getElementById("phone").value;
+    var time = document.getElementById("bookingTime").value;
+    var payment = document.getElementById("paymentStatus").value;
 
-    document.getElementById('waBtn').addEventListener('click', ()=> {
-      const name = document.getElementById('name').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const pickup = document.getElementById('pickup').value || 'Suntikoppa';
-      const drop = document.getElementById('drop').value;
-      const rideType = document.getElementById('rideType').value;
-      const datetimeVal = document.getElementById('datetime').value;
-      const notes = document.getElementById('notes').value.trim();
+    if (destination === "") { alert("Please select destination"); return; }
+    if (destination === "Other" && otherDestination === "") { alert("Please enter destination"); return; }
+    if (destination === "Other") destination = otherDestination;
 
-      // Basic validation
-      if (!name) return showMessage('Please enter your name', true);
-      if (!phone) return showMessage('Please enter your phone number', true);
-      if (!drop) return showMessage('Please select a drop location', true);
+    var whatsappMessage =
+      "🚖 *AUTO BOOKING REQUEST*\n\n" +
+      "👤 *Name:* " + name + "\n" +
+      "📞 *Phone:* " + phone + "\n" +
+      "📍 *Pickup:* " + pickup + "\n" +
+      "🏁 *Destination:* " + destination + "\n" +
+      "⏰ *Date & Time:* " + time + "\n" +
+      "💰 *Payment:* " + payment + "\n\n" +
+      "✅ Please confirm ride.";
 
-      const formattedTime = formatDateTimeLocal(datetimeVal);
+    var whatsappNumber = "917795886619";
+    var url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(whatsappMessage);
+    window.open(url, "_blank");
+  }
+</script>
 
-      const messageLines = [
-        '🛺 *New Auto Booking — Suntikoppa*',
-        '',
-        `👤 Name: ${name}`,
-        `📞 Phone: ${phone}`,
-        `📍 Pickup: ${pickup}`,
-        `📌 Drop: ${drop}`,
-        `🚖 Ride Type: ${rideType}`,
-        `⏰ Pickup Time: ${formattedTime}`,
-      ];
-      if (notes) messageLines.push(`📝 Notes: ${notes}`);
-
-      const message = messageLines.join('\n');
-      const url = 'https://wa.me/' + ADMIN_WA_NUMBER + '?text=' + encodeURIComponent(message);
-      // open whatsapp (mobile will open app, desktop opens web.whatsapp)
-      window.open(url, '_blank');
-      showMessage('Opening WhatsApp…');
-    });
-
-    document.getElementById('clearBtn').addEventListener('click', ()=>{
-      document.getElementById('bookingForm').reset();
-      showMessage('Form cleared.');
-    });
-  </script>
 </body>
-</html>
+</html>Eh_Auto_with_Payment_Confirmation.html
