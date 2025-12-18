@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Eh Auto - Suntikoppa</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
     body {
@@ -13,13 +13,30 @@
       padding: 0;
     }
     .container {
-      max-width: 420px;
+      max-width: 620px;
       margin: auto;
-      background: #ffffff;
+      background: #fffff0;
       padding: 20px;
       margin-top: 20px;
       border-radius: 15px;
       box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+    }
+    .logo { text-align: center; margin-bottom: 20px; }
+    .logo-box {
+      width: 160px;
+      height: 90px;
+      background: black;
+      color: white;
+      line-height: 90px;
+      border-radius: 10px;
+      display: inline-block;
+      font-size: 28px;
+      font-weight: bold;
+      animation: move 1s infinite alternate;
+    }
+    @keyframes move {
+      from { transform: translateX(-10px); }
+      to { transform: translateX(10px); }
     }
     h2 { text-align: center; }
     label {
@@ -33,41 +50,20 @@
       margin-top: 8px;
       border-radius: 5px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
       font-size: 16px;
+      box-sizing: border-box;
     }
     button {
       background: green;
       color: white;
       font-size: 18px;
       font-weight: bold;
-      margin-top: 20px;
       cursor: pointer;
       border: none;
+      margin-top: 15px;
     }
     button:hover { background: darkgreen; }
-    .logo { text-align: center; margin-bottom: 10px; }
-    .logo-box {
-      width: 120px;
-      height: 70px;
-      background: black;
-      color: white;
-      line-height: 70px;
-      border-radius: 10px;
-      display: inline-block;
-      font-weight: bold;
-      animation: move 1s infinite alternate;
-    }
-    @keyframes move {
-      from { transform: translateX(-10px); }
-      to { transform: translateX(10px); }
-    }
-    .footer {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 12px;
-      color: gray;
-    }
+    .hidden { display: none; }
     .pay-box {
       text-align: center;
       margin-top: 20px;
@@ -75,19 +71,51 @@
       border: 2px dashed green;
       border-radius: 10px;
     }
+    .visitor-box {
+      text-align: center;
+      margin-bottom: 15px;
+      background: #dfffe0;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- PAGE 1: LOGIN PAGE -->
+<div class="container" id="loginPage">
 
   <div class="logo">
-    <div class="logo-box">AUTO</div>
+    <div class="logo-box">eh AUTO</div>
     <div><b>Suntikoppa</b></div>
   </div>
 
+  <!-- VISITOR COUNTER -->
+  <div class="visitor-box">
+    👀 Visitors: <span id="visitorCount">0</span>
+  </div>
+
+  <h2>Login</h2>
+
+  <label>Enter Your Mobile Number</label>
+  <input type="tel" id="loginMobile" placeholder="Enter mobile number">
+
+  <button onclick="login()">➡ Continue</button>
+</div>
+
+<!-- PAGE 2: BOOKING PAGE -->
+<div class="container hidden" id="bookingPage">
+
+  <div class="logo">
+    <div class="logo-box">eh AUTO</div>
+  </div>
+
   <h2>Autorickshaw Booking</h2>
+
+  <label>User ID (Mobile Number)</label>
+  <input type="text" id="userID" readonly>
 
   <label>Pickup Location</label>
   <input type="text" id="pickup" value="Suntikoppa" readonly>
@@ -95,7 +123,7 @@
   <label>Select Destination</label>
   <select id="destination" onchange="checkOther()">
     <option value="">-- Select Destination --</option>
-    <option value="Suntikoppa">Suntikoppa</option>
+    <option value="Suntikoppa">Suntikoppa Local</option>
     <option value="Madikeri">Madikeri</option>
     <option value="Kushalnagar">Kushalnagar</option>
     <option value="Chettalli">Chettalli</option>
@@ -113,14 +141,11 @@
   <input type="datetime-local" id="bookingTime">
 
   <label>Your Name</label>
-  <input type="text" id="customerName" placeholder="Enter your name">
-
-  <label>Phone Number</label>
-  <input type="tel" id="phone" placeholder="Enter your phone number">
+  <input type="text" id="customerName">
 
   <div class="pay-box">
     <h3>Pay Now via UPI</h3>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A//pay%3Fpa%3D7795886619%40ptyes%26pn%3DGodvin%26cu%3DINR" alt="Payment QR">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi%3A//pay%3Fpa%3D7795886619%40ptyes%26pn%3DGodvin%26cu%3DINR" width="200">
     <p><b>UPI ID:</b> 7795886619@ptyes</p>
     <label>Payment Status</label>
     <select id="paymentStatus">
@@ -130,46 +155,61 @@
   </div>
 
   <button onclick="bookNow()">📲 Book Now via WhatsApp</button>
-
-  <div class="footer">
-    Powered by Godvin Robin 🚕
-  </div>
 </div>
 
 <script>
+  // VISITOR COUNTER
+  let visits = localStorage.getItem("visitors") || 0;
+  visits++;
+  localStorage.setItem("visitors", visits);
+  document.getElementById("visitorCount").textContent = visits;
+
+  // PAGE SWITCH
+  function login() {
+    let mobile = document.getElementById("loginMobile").value;
+
+    if (mobile.length < 10) {
+      alert("Enter valid mobile number");
+      return;
+    }
+
+    // Use same number everywhere
+    document.getElementById("userID").value = mobile;
+
+    // Swap pages
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("bookingPage").classList.remove("hidden");
+  }
+
   function checkOther() {
-    var destination = document.getElementById("destination").value;
-    var otherBox = document.getElementById("otherDestination");
-    if (destination === "Other") otherBox.style.display = "block";
-    else otherBox.style.display = "none";
+    let dest = document.getElementById("destination").value;
+    document.getElementById("otherDestination").style.display = (dest === "Other") ? "block" : "none";
   }
 
   function bookNow() {
-    var pickup = document.getElementById("pickup").value;
-    var destination = document.getElementById("destination").value;
-    var otherDestination = document.getElementById("otherDestination").value;
-    var name = document.getElementById("customerName").value;
-    var phone = document.getElementById("phone").value;
-    var time = document.getElementById("bookingTime").value;
-    var payment = document.getElementById("paymentStatus").value;
+    let userID = document.getElementById("userID").value;
+    let pickup = document.getElementById("pickup").value;
+    let dest = document.getElementById("destination").value;
+    let other = document.getElementById("otherDestination").value;
+    let name = document.getElementById("customerName").value;
+    let time = document.getElementById("bookingTime").value;
+    let pay = document.getElementById("paymentStatus").value;
 
-    if (destination === "") { alert("Please select destination"); return; }
-    if (destination === "Other" && otherDestination === "") { alert("Please enter destination"); return; }
-    if (destination === "Other") destination = otherDestination;
+    if (dest === "Other") dest = other;
 
-    var whatsappMessage =
+    let message =
       "🚖 *AUTO BOOKING REQUEST*\n\n" +
+      "🆔 *User ID:* " + userID + "\n" +
       "👤 *Name:* " + name + "\n" +
-      "📞 *Phone:* " + phone + "\n" +
+      "📞 *Customer Phone:* " + userID + "\n" +
       "📍 *Pickup:* " + pickup + "\n" +
-      "🏁 *Destination:* " + destination + "\n" +
+      "🏁 *Destination:* " + dest + "\n" +
       "⏰ *Date & Time:* " + time + "\n" +
-      "💰 *Payment:* " + payment + "\n\n" +
+      "💰 *Payment:* " + pay + "\n\n" +
       "✅ Please confirm ride.";
 
-    var whatsappNumber = "917795886619";
-    var url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(whatsappMessage);
-    window.open(url, "_blank");
+    let admin = "917795886619";
+    window.open("https://wa.me/" + admin + "?text=" + encodeURIComponent(message), "_blank");
   }
 </script>
 
